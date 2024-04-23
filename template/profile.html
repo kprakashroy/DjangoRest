@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .profile-info {
+            margin-bottom: 20px;
+        }
+
+        .profile-info label {
+            font-weight: bold;
+        }
+
+        .profile-info p {
+            margin: 5px 0;
+        }
+
+        .profile-picture {
+            margin-bottom: 20px;
+        }
+
+        .profile-picture label {
+            font-weight: bold;
+            display: block;
+        }
+
+        .profile-picture input[type="file"] {
+            margin-top: 5px;
+        }
+
+        img {
+            max-width: 200px;
+            height: auto;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        .error-message {
+            color: red;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>User Profile</h2>
+        <div class="profile-info">
+            <label for="username">Username:</label>
+            <p id="username">{{ username }}</p>
+            <label for="email">Email:</label>
+            <p id="email">{{ email }}</p>
+        </div>
+        <div class="profile-picture">
+            <form id="upload-form" enctype="multipart/form-data">
+                <label for="profile-picture">Profile Picture:</label>
+                <input type="file" id="profile-picture" name="profile-picture" accept="image/*"
+                    onchange="handleImageUpload(event)">
+            </form>
+            <img id="image-preview" src="/media/{{profile_image}}" alt="Image Preview" style="display: block;">
+
+        </div>
+    </div>
+
+    <script>
+        function handleImageUpload(event) {
+            var file = event.target.files[0];
+            var formData = new FormData();
+            formData.append('profile-picture', file);
+            var useremail = document.getElementById('email').textContent;
+            var name = document.getElementById('username').textContent;
+            formData.append('email', useremail);
+
+            formData.append('username', name);
+
+
+            fetch('/uploadProfilePicture/', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Failed to upload picture');
+                    }
+                })
+                .then(data => {
+                    if (data.error == 1) {
+                        alert(data.msg)
+                    }
+                    else {
+                        console.log(data.profile_image)
+                        var reader = new FileReader();
+                        reader.onload = function () {
+                            var output = document.getElementById('image-preview');
+                            output.src = reader.result;
+                            output.style.display = 'block';
+                        }
+                        reader.readAsDataURL(file);
+                    }
+                })
+                .catch(error => {
+
+                    console.error(error);
+                });
+
+        }
+    </script>
+
+</body>
+
+</html>

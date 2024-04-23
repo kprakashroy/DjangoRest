@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagination Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .card {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+
+        .card img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .card-content {
+            display: flex;
+            align-items: center;
+        }
+
+        .pagination {
+            margin-top: 20px;
+        }
+
+        .pagination a {
+            padding: 5px 10px;
+            text-decoration: none;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            margin-right: 5px;
+            color: #333;
+        }
+
+        .pagination a:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <ul>
+        {% for item in page_obj %}
+        <li>
+            <div class="card">
+                <div class="card-content">
+                    <img src="/media/{{item.profile_image}}" alt="Profile Picture">
+                    <div>
+                        <h3>{{ item.username }}</h3>
+                        <p>{{ item.email }}</p>
+                        <button class="delete-btn" data-item-id="{{ item.id }}">Delete</button>
+
+                    </div>
+                </div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+
+
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page=1">First</a>
+        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+
+        <span>{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Next</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+        {% endif %}
+    </div>
+
+    <script>
+
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', async () => {
+                const itemId = button.dataset.itemId;
+                try {
+                    const response = await fetch(`/delete-item/`, {
+                        method: 'POST',
+                        body: JSON.stringify({ 'id': itemId })
+                    });
+                    if (response.ok) {
+                        const card = button.closest('.card');
+                        card.remove();
+                    } else {
+                        console.error('Failed to delete item');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .submit-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .submit-button:hover {
+            background-color: #45a049;
+        }
+
+        .already-registered {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .already-registered a {
+            background-color: #ccc;
+            color: #333;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .already-registered a:hover {
+            background-color: #999;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>User Registration Form</h2>
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <p class="error-message" id="error-username"></p>
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <p class="error-message" id="error-email"></p>
+        </div>
+        <button class="submit-button" onclick="submitForm()">Submit</button>
+
+        <div class="already-registered">
+            <a href="/already-registered-page/">Already Registered</a>
+        </div>
+    </div>
+
+    <script>
+        function submitForm() {
+            var username = document.getElementById('username').value;
+            var email = document.getElementById('email').value;
+
+            if (username == '' || username == null) {
+                alert("Username field can't remains empty")
+                return;
+            }
+            var re = /\S+@\S+\.\S+/;
+            if (!re.test(email)) {
+                alert("Please fill your email field correctly")
+                return;
+            }
+
+            var data = {
+                username: username,
+                email: email
+            };
+
+
+            fetch("/add/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Network response was not ok.');
+                    }
+                })
+                .then(response => {
+                    if (response.error === 1) {
+                        alert(response.msg);
+                    } else if (response.msg === "user added successfully") {
+                        const redirectUrl = `/profile?username=${data.username}&email=${data.email}`;
+                        window.location.href = redirectUrl;
+
+                    }
+                })
+                .catch(error => {
+                    alert("Error: " + error.message);
+                });
+        }
+    </script>
+
+</body>
+
+</html>

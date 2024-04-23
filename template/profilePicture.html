@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+</head>
+
+<body>
+    <h2>Upload a File</h2>
+    <form action="/uploadProfilePicture/" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" accept="image/*" name="file" id="file">
+        <br><br>
+        <input type="text" placeholder="Your username or email" id="username">
+        <br><br>
+        <button type="submit" value="Upload" onClick="uploadImage()">Upload</button>
+        <p id="status"></p>
+    </form>
+
+    <script>
+        const uploadImage = async () => {
+            var fileInput = document.getElementById('file');
+            var file = fileInput.files[0];
+            var data = document.getElementById("username");
+
+            var formData = new FormData();
+            formData.append('file', file);
+            formData.append('username', "data");
+
+            const imageEndpoint = "/uploadProfilePicture/";
+
+            var send = await fetch(imageEndpoint, {
+                method: "POST",
+                headers: {
+                    'Content-Type': "multipart/form-data"
+                },
+                body: formData
+            }).then(response => response.json)
+                .catch(error => error);
+        }
+    </script>
+</body>
+
+
+
+</html>
